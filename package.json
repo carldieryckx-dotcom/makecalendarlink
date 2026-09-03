@@ -29,7 +29,7 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260901.0",
+    "@cloudflare/workers-types": "^5.20260903.1",
     "esbuild": "^0.28.2",
     "jsdom": "^28.0.0",
     "typescript": "^5.9.0",
