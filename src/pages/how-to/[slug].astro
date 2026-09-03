@@ -1,0 +1,103 @@
+---
+import Base from '../../layouts/Base.astro';
+import Faq from '../../components/Faq.astro';
+import { GUIDES } from '../../data/guides';
+import { SITE } from '../../config';
+
+export function getStaticPaths() {
+  return GUIDES.map((guide) => ({ params: { slug: guide.slug }, props: { guide } }));
+}
+
+const { guide } = Astro.props;
+const others = GUIDES.filter((g) => g.slug !== guide.slug);
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'TechArticle',
+    headline: guide.title,
+    description: guide.description,
+    url: `${SITE.url}/how-to/${guide.slug}`,
+    author: { '@type': 'Organization', name: SITE.name },
+    publisher: { '@type': 'Organization', name: SITE.name },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Guides', item: `${SITE.url}/how-to` },
+      { '@type': 'ListItem', position: 2, name: guide.h1 },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: guide.faq.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a.replace(/<[^>]+>/g, '') },
+    })),
+  },
+];
+---
+
+<Base
+  title={guide.title}
+  description={guide.description}
+  path={`/how-to/${guide.slug}`}
+  schema={schema}
+>
+  <article class="mx-auto max-w-3xl px-5 py-12">
+    <nav class="text-sm text-ink-400">
+      <a href="/" class="hover:text-ink-800">Home</a>
+      <span class="mx-2">/</span>
+      <a href="/how-to" class="hover:text-ink-800">Guides</a>
+    </nav>
+
+    <h1 class="mt-4 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">{guide.h1}</h1>
+    <p class="mt-4 text-lg text-ink-600" set:html={guide.intro} />
+
+    <div
+      class="mt-8 flex flex-wrap items-center gap-4 rounded-2xl border border-brand-100 bg-brand-50 p-5"
+    >
+      <p class="flex-1 text-sm text-ink-800">
+        Rather not build the URL by hand? The generator does all of this, including the encoding.
+      </p>
+      <a
+        href="/#generator"
+        class="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+        >Generate a link</a
+      >
+    </div>
+
+    <div class="prose-page mt-4">
+      {
+        guide.sections.map((section) => (
+          <section>
+            <h2>{section.h2}</h2>
+            <div set:html={section.html} />
+          </section>
+        ))
+      }
+    </div>
+  </article>
+
+  <Faq items={guide.faq} title={`${guide.h1}: questions`} />
+
+  <section class="mx-auto max-w-3xl px-5 pb-16">
+    <h2 class="text-lg font-semibold tracking-tight">Other calendars</h2>
+    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+      {
+        others.map((g) => (
+          <a
+            href={`/how-to/${g.slug}`}
+            class="rounded-xl border border-ink-200 bg-white p-4 hover:border-brand-500"
+          >
+            <span class="text-sm font-semibold">{g.h1}</span>
+            <span class="mt-1 block text-sm text-ink-600">{g.blurb}</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</Base>

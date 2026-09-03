@@ -1,0 +1,144 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import { SITE } from '../config';
+
+const faq = [
+  {
+    q: 'How big is the script?',
+    a: 'A few kilobytes gzipped, with no dependencies. Load it async and it will not affect your Core Web Vitals.',
+  },
+  {
+    q: 'Will it clash with my site CSS?',
+    a: 'No. The widget renders inside a shadow root, so your styles cannot leak in and its styles cannot leak out. Use the CSS custom properties to restyle it deliberately.',
+  },
+  {
+    q: 'Does it work in React, Vue or Svelte?',
+    a: 'Yes. Render the div as usual and load the script once. The widget watches the DOM, so components mounted later are picked up automatically. You can also call <code>window.addToCalendar.scan()</code> after a render.',
+  },
+  {
+    q: 'Can I use it in an email?',
+    a: 'No. Email clients strip JavaScript. Use the plain HTML snippet from the generator instead.',
+  },
+  {
+    q: 'Can I self-host the script?',
+    a: `Yes. Download it, drop it in your assets and point the src at your own copy. Nothing calls home unless you turn on click counting. <a href="${SITE.repo}">Source</a>.`,
+  },
+];
+
+const attributes = [
+  ['data-title', 'yes', 'Event title.'],
+  ['data-start', 'yes', '<code>2026-09-10T14:00</code>, or <code>2026-09-10</code> for all-day.'],
+  ['data-end', 'no', 'Defaults to the start value.'],
+  ['data-timezone', 'no', 'IANA zone. Defaults to the visitor\'s own zone, which is usually not what you want, so set it.'],
+  ['data-all-day', 'no', '<code>true</code> for an all-day event.'],
+  ['data-location', 'no', 'Address or meeting URL.'],
+  ['data-description', 'no', 'Event description.'],
+  ['data-url', 'no', 'Event page, appended to the description.'],
+  ['data-rrule', 'no', 'Recurrence, e.g. <code>FREQ=WEEKLY;COUNT=8</code>.'],
+  ['data-reminder', 'no', 'Minutes before start, .ics only.'],
+  ['data-label', 'no', 'Button text. Defaults to "Add to calendar".'],
+  ['data-providers', 'no', 'Comma separated subset of <code>google,outlook,office365,yahoo,ics</code>.'],
+  ['data-track', 'no', '<code>on</code> routes clicks through this site so they can be counted.'],
+];
+---
+
+<Base
+  title="Add to calendar embed widget"
+  description="A dependency-free add to calendar button you can drop into any website with two lines of HTML. Shadow DOM, keyboard accessible, no cookies."
+  path="/embed"
+>
+  <div class="mx-auto max-w-3xl px-5 py-12">
+    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">The embed widget</h1>
+    <p class="mt-4 text-lg text-ink-600">
+      One button that opens a calendar picker. Two lines of HTML, no dependencies, no cookies, and
+      it cannot be broken by your site's CSS.
+    </p>
+
+    <h2 class="mt-12 text-xl font-semibold tracking-tight">Live example</h2>
+    <div class="mt-4 rounded-2xl border border-ink-200 bg-white p-8">
+      <div
+        data-add-to-calendar
+        data-title="Q4 product webinar"
+        data-start="2026-12-10T14:00"
+        data-end="2026-12-10T15:00"
+        data-timezone="Europe/Brussels"
+        data-location="https://meet.example.com/abc-defg-hij"
+        data-description="A 45 minute session with live Q&A."
+      >
+      </div>
+      <p class="mt-4 text-sm text-ink-400">
+        That button is the widget, running on this page with the snippet below.
+      </p>
+    </div>
+
+    <div class="prose-page">
+      <h2>The snippet</h2>
+      <pre><code>{`<div data-add-to-calendar
+     data-title="Q4 product webinar"
+     data-start="2026-12-10T14:00"
+     data-end="2026-12-10T15:00"
+     data-timezone="Europe/Brussels"
+     data-location="https://meet.example.com/abc-defg-hij"></div>
+
+<script src="${SITE.url}/embed.js" async defer></script>`}</code></pre>
+      <p>
+        Load the script once per page, however many buttons you have. The generator will fill this
+        in for you if you would rather not type dates by hand.
+      </p>
+
+      <h2>Attributes</h2>
+      <table>
+        <thead>
+          <tr><th>Attribute</th><th>Required</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          {
+            attributes.map(([name, required, note]) => (
+              <tr>
+                <td><code>{name}</code></td>
+                <td>{required}</td>
+                <td set:html={note} />
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+
+      <h2>Styling</h2>
+      <p>Set these custom properties on the element to match your design:</p>
+      <pre><code>{`[data-add-to-calendar] {
+  --atc-bg: #111827;
+  --atc-bg-hover: #1f2937;
+  --atc-color: #ffffff;
+  --atc-border: #111827;
+  --atc-radius: 999px;
+  --atc-padding: 12px 20px;
+  --atc-font-size: 15px;
+  --atc-accent: #6366f1;
+}`}</code></pre>
+      <p>
+        The widget also respects <code>prefers-color-scheme</code>, so it stays readable on a dark
+        site without any configuration.
+      </p>
+
+      <h2>Accessibility</h2>
+      <p>
+        The trigger is a real button with <code>aria-expanded</code>, the menu has
+        <code>role="menu"</code>, arrow keys move between items and Escape closes and returns focus.
+        It works without a mouse.
+      </p>
+
+      <h2>Single page apps</h2>
+      <p>
+        A MutationObserver picks up widgets added after load, so most frameworks need nothing extra.
+        If you render into a detached tree and attach it later, call
+        <code>window.addToCalendar.scan()</code> once afterwards.
+      </p>
+    </div>
+  </div>
+
+  <Faq items={faq} title="Widget questions" />
+
+  <script is:inline src="/embed.js" async defer></script>
+</Base>

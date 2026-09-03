@@ -1,0 +1,124 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../config';
+---
+
+<Base
+  title="Free add to calendar link API"
+  description="A keyless JSON API that returns add to calendar links for Google, Outlook, Office 365, Yahoo and Apple Calendar. No account, no rate limit games."
+  path="/api"
+>
+  <div class="mx-auto max-w-3xl px-5 py-12">
+    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">API</h1>
+    <p class="mt-4 text-lg text-ink-600">
+      No key, no signup, no quota. If you would rather not call an HTTP endpoint at all, the same
+      logic is a dependency-free TypeScript module in the repository.
+    </p>
+
+    <div class="prose-page">
+      <h2>Generate links</h2>
+      <pre><code>{`GET ${SITE.url}/api/links
+  ?title=Q4 product webinar
+  &start=2026-09-10T14:00
+  &end=2026-09-10T15:00
+  &timeZone=Europe/Brussels
+  &location=https://meet.example.com/abc`}</code></pre>
+
+      <p>Response:</p>
+      <pre><code>{`{
+  "key": "1x9k2mfp0a",
+  "encoded": "eyJ0IjoiUTQgcHJvZHVjdCB3ZWJpbmFyIiwic...",
+  "links": {
+    "google": "https://calendar.google.com/calendar/render?...",
+    "outlook": "https://outlook.live.com/calendar/0/deeplink/compose?...",
+    "office365": "https://outlook.office.com/calendar/0/deeplink/compose?...",
+    "yahoo": "https://calendar.yahoo.com/?...",
+    "ics": "${SITE.url}/api/ics?e=eyJ0IjoiUTQg..."
+  },
+  "icsUrl": "${SITE.url}/api/ics?e=eyJ0IjoiUTQg...",
+  "shareUrl": "${SITE.url}/e/eyJ0IjoiUTQg..."
+}`}</code></pre>
+
+      <h3>Parameters</h3>
+      <table>
+        <thead><tr><th>Name</th><th>Required</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>title</code></td><td>yes</td><td>Event title.</td></tr>
+          <tr><td><code>start</code></td><td>yes</td><td><code>YYYY-MM-DDTHH:mm</code> or <code>YYYY-MM-DD</code>. Wall-clock time, not UTC.</td></tr>
+          <tr><td><code>end</code></td><td>no</td><td>Defaults to <code>start</code>.</td></tr>
+          <tr><td><code>timeZone</code></td><td>no</td><td>IANA zone. Defaults to UTC, so set it.</td></tr>
+          <tr><td><code>allDay</code></td><td>no</td><td><code>true</code> for an all-day event.</td></tr>
+          <tr><td><code>location</code></td><td>no</td><td>Address or meeting URL.</td></tr>
+          <tr><td><code>description</code></td><td>no</td><td>Event description.</td></tr>
+          <tr><td><code>url</code></td><td>no</td><td>Appended to the description.</td></tr>
+          <tr><td><code>rrule</code></td><td>no</td><td>Recurrence without the <code>RRULE:</code> prefix.</td></tr>
+          <tr><td><code>track</code></td><td>no</td><td><code>true</code> returns tracked links and a stats URL.</td></tr>
+          <tr><td><code>ics</code></td><td>no</td><td>Include the raw .ics text in the response.</td></tr>
+          <tr><td><code>e</code></td><td>no</td><td>An existing encoded payload, instead of the fields above.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>POST</h3>
+      <p>Same fields as a JSON body, which avoids encoding headaches with long descriptions:</p>
+      <pre><code>{`curl -X POST ${SITE.url}/api/links \\
+  -H 'content-type: application/json' \\
+  -d '{
+    "title": "Q4 product webinar",
+    "start": "2026-09-10T14:00",
+    "end": "2026-09-10T15:00",
+    "timeZone": "Europe/Brussels"
+  }'`}</code></pre>
+
+      <h2>Download an .ics file</h2>
+      <pre><code>{`GET ${SITE.url}/api/ics?e=<encoded>`}</code></pre>
+      <p>
+        Returns <code>text/calendar</code> with a <code>Content-Disposition</code> attachment
+        header, so it opens natively on iOS, macOS and Windows. The payload fully determines the
+        file, so it is cached at the edge indefinitely.
+      </p>
+
+      <h2>Tracked redirect</h2>
+      <pre><code>{`GET ${SITE.url}/go/:provider?e=<encoded>&k=<key>`}</code></pre>
+      <p>
+        Counts the click and forwards to the calendar with <code>Referrer-Policy: no-referrer</code>,
+        so the page the link sat on is not leaked to Google or Microsoft. View the numbers at
+        <code>/stats/&lt;key&gt;</code>.
+      </p>
+
+      <h2>Use the module instead</h2>
+      <p>
+        For a TypeScript or JavaScript project, skip the network entirely. The core has no
+        dependencies and runs in the browser, in Node and on workers:
+      </p>
+      <pre><code>{`import { buildLinks, buildIcs } from './lib';
+
+const links = buildLinks({
+  title: 'Q4 product webinar',
+  start: '2026-09-10T14:00',
+  end: '2026-09-10T15:00',
+  timeZone: 'Europe/Brussels',
+});
+
+const ics = buildIcs({ /* same shape */ });`}</code></pre>
+
+      <h2>Limits and fair use</h2>
+      <p>
+        There is no rate limit configured, because the endpoints do no work worth protecting: no
+        database read, no third-party call. If you are about to send serious volume, copy the module
+        into your own project or self-host, which is faster for you anyway.
+      </p>
+
+      <h2>Stability</h2>
+      <p>
+        These endpoints are versionless on purpose and the response shape is additive: new fields
+        may appear, existing ones will not change meaning. If a calendar provider changes their URL
+        format, the fix lands here rather than in your code, which is the main argument for calling
+        the API over hard-coding formats yourself.
+      </p>
+
+      <p>
+        <a href={SITE.repo}>Source and issues on GitHub</a>.
+      </p>
+    </div>
+  </div>
+</Base>

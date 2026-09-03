@@ -1,0 +1,120 @@
+---
+import '../styles/global.css';
+import { SITE } from '../config';
+
+export interface Props {
+  title: string;
+  description: string;
+  /** Path only, e.g. `/how-to/google-calendar`. Used for the canonical tag. */
+  path?: string;
+  /** JSON-LD objects to inline. */
+  schema?: Record<string, unknown>[];
+  noindex?: boolean;
+}
+
+const { title, description, path, schema = [], noindex = false } = Astro.props;
+
+const canonical = new URL(path ?? Astro.url.pathname, SITE.url).href.replace(/(.+)\/$/, '$1');
+const fullTitle = title.includes(SITE.name) ? title : `${title} | ${SITE.name}`;
+
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: SITE.name,
+  url: SITE.url,
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Any',
+  description: SITE.tagline,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+  isAccessibleForFree: true,
+};
+
+const nav = [
+  { href: '/', label: 'Generator' },
+  { href: '/embed', label: 'Embed widget' },
+  { href: '/how-to', label: 'Guides' },
+  { href: '/vs-addevent', label: 'vs AddEvent' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL('/og.png', SITE.url).href} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(organization)} />
+    {schema.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
+  </head>
+
+  <body class="flex min-h-screen flex-col">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-white"
+      >Skip to content</a
+    >
+
+    <header class="border-b border-ink-100">
+      <div class="mx-auto flex max-w-5xl items-center justify-between gap-6 px-5 py-4">
+        <a href="/" class="flex items-center gap-2 font-semibold tracking-tight">
+          <span
+            class="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-sm font-bold text-white"
+            >C</span
+          >
+          <span>{SITE.name}</span>
+        </a>
+        <nav class="hidden items-center gap-6 text-sm text-ink-600 sm:flex">
+          {
+            nav.map((item) => (
+              <a href={item.href} class="hover:text-ink-900">
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+        <a
+          href={SITE.repo}
+          rel="noopener"
+          class="hidden rounded-lg border border-ink-200 px-3 py-1.5 text-sm font-medium text-ink-800 hover:bg-ink-50 sm:block"
+          >Source</a
+        >
+      </div>
+    </header>
+
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+
+    <footer class="mt-20 border-t border-ink-100 bg-ink-50">
+      <div
+        class="mx-auto flex max-w-5xl flex-col gap-4 px-5 py-8 text-sm text-ink-600 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <p>
+          {SITE.name} is free and open source. No account, no tracking cookies.
+        </p>
+        <nav class="flex flex-wrap gap-x-5 gap-y-2">
+          <a href="/how-to" class="hover:text-ink-900">Guides</a>
+          <a href="/embed" class="hover:text-ink-900">Embed</a>
+          <a href="/api" class="hover:text-ink-900">API</a>
+          <a href="/privacy" class="hover:text-ink-900">Privacy</a>
+          <a href={SITE.repo} rel="noopener" class="hover:text-ink-900">GitHub</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

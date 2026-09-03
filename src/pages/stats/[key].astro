@@ -1,0 +1,166 @@
+---
+import Base from '../../layouts/Base.astro';
+import { PROVIDER_LABELS, type Provider } from '../../lib/event';
+import { readStats, type Stats } from '../../lib/analytics';
+import { getDb } from '../../lib/runtime';
+import { SITE } from '../../config';
+
+export const prerender = false;
+
+const key = (Astro.params.key ?? '').replace(/[^a-z0-9]/gi, '').slice(0, 16);
+const db = getDb();
+
+let stats: Stats | null = null;
+let error: string | null = null;
+
+if (!key) {
+  error = 'That dashboard link is not complete.';
+} else if (!db) {
+  error =
+    'Click tracking is not configured on this deployment. Create a D1 database and bind it as DB.';
+} else {
+  try {
+    stats = await readStats(db, key);
+  } catch (err) {
+    error = err instanceof Error ? err.message : 'Could not read the numbers.';
+  }
+}
+
+const peak = stats ? Math.max(1, ...stats.byDay.map((d) => d.clicks)) : 1;
+const share = (n: number) => (stats && stats.total ? Math.round((n / stats.total) * 100) : 0);
+
+const fmtDay = (day: string) =>
+  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(day));
+---
+
+<Base
+  title={stats?.title ? `Clicks for ${stats.title}` : 'Click dashboard'}
+  description="See how many people added your event to their calendar, split per calendar provider."
+  noindex
+>
+  <div class="mx-auto max-w-3xl px-5 py-12">
+    <p class="text-sm font-medium text-brand-600">Click dashboard</p>
+    <h1 class="mt-2 text-3xl font-bold tracking-tight">
+      {stats?.title ?? 'Your event'}
+    </h1>
+    <p class="mt-2 text-sm text-ink-600">
+      Key <code class="rounded bg-ink-100 px-1.5 py-0.5 font-mono">{key}</code>
+      {
+        stats?.startsAt && (
+          <>
+            {' · starts '}
+            {stats.startsAt.replace('T', ' at ')}
+            {stats.timeZone ? ` (${stats.timeZone})` : ''}
+          </>
+        )
+      }
+    </p>
+
+    {
+      error && (
+        <div class="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
+          {error}
+        </div>
+      )
+    }
+
+    {
+      stats && stats.total === 0 && (
+        <div class="mt-8 rounded-2xl border border-dashed border-ink-200 bg-ink-50/60 p-8 text-center">
+          <p class="font-medium text-ink-800">No clicks yet</p>
+          <p class="mx-auto mt-1 max-w-sm text-sm text-ink-600">
+            Numbers show up here as soon as someone uses one of your tracked links. The counter
+            starts at the first click, so nothing is lost.
+          </p>
+        </div>
+      )
+    }
+
+    {
+      stats && stats.total > 0 && (
+        <>
+          <div class="mt-8 grid gap-4 sm:grid-cols-3">
+            <div class="rounded-2xl border border-ink-200 bg-white p-5">
+              <p class="text-sm text-ink-600">Total adds</p>
+              <p class="mt-1 text-3xl font-bold tabular-nums">{stats.total}</p>
+            </div>
+            <div class="rounded-2xl border border-ink-200 bg-white p-5">
+              <p class="text-sm text-ink-600">Most used calendar</p>
+              <p class="mt-1 text-lg font-semibold">
+                {PROVIDER_LABELS[stats.byProvider[0]?.provider as Provider] ?? '—'}
+              </p>
+              <p class="text-sm text-ink-400">{share(stats.byProvider[0]?.clicks ?? 0)}% of clicks</p>
+            </div>
+            <div class="rounded-2xl border border-ink-200 bg-white p-5">
+              <p class="text-sm text-ink-600">Last click</p>
+              <p class="mt-1 text-lg font-semibold">
+                {stats.lastClickAt?.replace(' ', ' · ') ?? '—'}
+              </p>
+              <p class="text-sm text-ink-400">UTC</p>
+            </div>
+          </div>
+
+          <h2 class="mt-12 text-lg font-semibold tracking-tight">Per calendar</h2>
+          <div class="mt-4 space-y-3">
+            {stats.byProvider.map((row) => (
+              <div>
+                <div class="flex items-baseline justify-between text-sm">
+                  <span class="font-medium">
+                    {PROVIDER_LABELS[row.provider as Provider] ?? row.provider}
+                  </span>
+                  <span class="tabular-nums text-ink-600">
+                    {row.clicks} · {share(row.clicks)}%
+                  </span>
+                </div>
+                <div class="mt-1.5 h-2 overflow-hidden rounded-full bg-ink-100">
+                  <div class="h-full rounded-full bg-brand-600" style={`width:${share(row.clicks)}%`} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <h2 class="mt-12 text-lg font-semibold tracking-tight">Last 30 days</h2>
+          <div class="mt-4 flex h-40 items-end gap-1.5 rounded-2xl border border-ink-200 bg-white p-4">
+            {stats.byDay.map((d) => (
+              <div class="group relative flex flex-1 flex-col items-center justify-end">
+                <div
+                  class="w-full rounded-t bg-brand-500/80 group-hover:bg-brand-600"
+                  style={`height:${Math.max(4, Math.round((d.clicks / peak) * 100))}%`}
+                  title={`${fmtDay(d.day)}: ${d.clicks}`}
+                />
+              </div>
+            ))}
+          </div>
+          <p class="mt-2 text-xs text-ink-400">
+            {stats.byDay.length > 0 &&
+              `${fmtDay(stats.byDay[0].day)} to ${fmtDay(stats.byDay[stats.byDay.length - 1].day)}`}
+          </p>
+
+          {stats.byCountry.length > 1 && (
+            <>
+              <h2 class="mt-12 text-lg font-semibold tracking-tight">Top countries</h2>
+              <ul class="mt-4 divide-y divide-ink-100 rounded-2xl border border-ink-200 bg-white">
+                {stats.byCountry.map((c) => (
+                  <li class="flex items-center justify-between px-5 py-3 text-sm">
+                    <span class="font-mono">{c.country}</span>
+                    <span class="tabular-nums text-ink-600">{c.clicks}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </>
+      )
+    }
+
+    <div class="mt-12 rounded-2xl border border-ink-200 bg-ink-50 p-5 text-sm text-ink-600">
+      <p class="font-medium text-ink-900">About this page</p>
+      <p class="mt-1">
+        Anyone with this link can see these numbers, so treat it as unlisted rather than private.
+        {SITE.name} stores no IP addresses, no user agents and no cookies. Country comes from the
+        edge network at country level only.
+      </p>
+      <a href="/" class="mt-3 inline-block font-medium text-brand-600 underline">Make another link</a>
+    </div>
+  </div>
+</Base>

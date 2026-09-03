@@ -1,0 +1,48 @@
+{
+  "name": "calendarbutton",
+  "version": "1.0.0",
+  "private": false,
+  "license": "MIT",
+  "description": "Free, open source add to calendar link generator for Google Calendar, Outlook, Office 365, Yahoo and Apple Calendar.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "npm run build:widget && astro dev",
+    "build": "npm run build:widget && astro build",
+    "build:widget": "esbuild widget/embed.ts --bundle --minify --format=iife --target=es2019 --outfile=public/embed.js --legal-comments=none",
+    "preview": "npm run build && wrangler dev -c dist/server/wrangler.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "astro check",
+    "db:create": "wrangler d1 create calendarbutton",
+    "db:migrate": "wrangler d1 execute calendarbutton --remote --file=./schema.sql",
+    "db:migrate:local": "wrangler d1 execute calendarbutton --local --file=./schema.sql",
+    "deploy": "npm run build && wrangler deploy -c dist/server/wrangler.json"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^14.3.0",
+    "@astrojs/sitemap": "^3.7.4",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.3.1",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260901.0",
+    "esbuild": "^0.28.2",
+    "jsdom": "^28.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^5.0.0",
+    "wrangler": "^4.128.0"
+  },
+  "keywords": [
+    "add-to-calendar",
+    "calendar-link",
+    "ics",
+    "icalendar",
+    "google-calendar",
+    "outlook",
+    "addevent-alternative"
+  ]
+}

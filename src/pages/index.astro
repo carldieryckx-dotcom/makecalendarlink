@@ -1,0 +1,178 @@
+---
+import Base from '../layouts/Base.astro';
+import Generator from '../components/Generator.astro';
+import Faq from '../components/Faq.astro';
+import { SITE } from '../config';
+import { GUIDES } from '../data/guides';
+
+const faq = [
+  {
+    q: 'Is this really free?',
+    a: `Yes. No account, no event limit, no click limit and no watermark. ${SITE.name} is open source, and the whole thing runs on a free hosting tier, so there is nothing to recover.`,
+  },
+  {
+    q: 'Which calendars are supported?',
+    a: 'Google Calendar, Outlook.com, Outlook 365 for work and school accounts, Yahoo Calendar, and an .ics file that covers Apple Calendar, Outlook desktop, Thunderbird, Proton Calendar and everything else that reads iCalendar.',
+  },
+  {
+    q: 'Do my event details get stored somewhere?',
+    a: 'No. The links are built in your browser and the event details travel inside the link itself. Nothing is written to a database. If you switch on click counting, only the click is counted: which calendar, which day and which country, never who.',
+  },
+  {
+    q: 'Why does my Google Calendar event show the wrong timezone?',
+    a: 'That happens when a generator sends UTC timestamps together with a <code>ctz</code> parameter, which is the most common bug in add to calendar links. This tool sends the local wall time plus the timezone, so Google shows exactly the hour you typed.',
+  },
+  {
+    q: 'Can I use the links in an email or newsletter?',
+    a: 'Yes, that is what the HTML snippet is for. It is plain anchor tags with inline styles, so it works in Mailchimp, Brevo, Klaviyo, HubSpot, Outlook and Gmail. Use the JavaScript widget on a website instead, since email clients strip scripts.',
+  },
+  {
+    q: 'Do the links expire?',
+    a: 'No. Every link is self-contained, so it keeps working as long as the calendar providers keep their URL formats. There is no server-side record that can be deleted out from under you.',
+  },
+  {
+    q: 'Can I self-host it?',
+    a: `Yes. Clone the repository, run <code>npm install</code>, and deploy to Cloudflare Pages in a couple of minutes. The link building logic is a dependency-free TypeScript module you can drop into your own project too. <a href="${SITE.repo}">See the repository</a>.`,
+  },
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a.replace(/<[^>]+>/g, '') },
+    })),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'How to create an add to calendar link',
+    totalTime: 'PT2M',
+    step: [
+      { '@type': 'HowToStep', name: 'Enter the event details', text: 'Add the title, date, time and timezone of your event.' },
+      { '@type': 'HowToStep', name: 'Generate the links', text: 'The tool builds a link for Google Calendar, Outlook, Office 365, Yahoo and Apple Calendar.' },
+      { '@type': 'HowToStep', name: 'Copy and paste', text: 'Copy the HTML snippet into your newsletter or website, or use the plain URLs on your own buttons.' },
+    ],
+  },
+];
+---
+
+<Base
+  title="Free add to calendar link generator"
+  description="Create free add to calendar links for Google Calendar, Outlook, Office 365, Yahoo and Apple Calendar. No account, no limits, open source."
+  path="/"
+  schema={schema}
+>
+  <!-- hero -->
+  <section class="border-b border-ink-100 bg-gradient-to-b from-brand-50/70 to-white">
+    <div class="mx-auto max-w-3xl px-5 py-16 text-center sm:py-20">
+      <p
+        class="inline-flex items-center gap-2 rounded-full border border-brand-100 bg-white px-3 py-1 text-xs font-medium text-brand-700"
+      >
+        Free forever · open source · no account
+      </p>
+      <h1 class="mt-5 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl">
+        Add to calendar links,<br class="hidden sm:block" /> generated in seconds
+      </h1>
+      <p class="mx-auto mt-5 max-w-xl text-lg text-ink-600">
+        Fill in your event once and get working links for Google Calendar, Outlook, Office 365,
+        Yahoo and Apple Calendar. Paste them into a newsletter, a landing page or an email
+        signature.
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <a
+          href="#generator"
+          class="rounded-lg bg-brand-600 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-700"
+          >Create my links</a
+        >
+        <a
+          href="/embed"
+          class="rounded-lg border border-ink-200 bg-white px-5 py-3 text-sm font-semibold text-ink-800 hover:bg-ink-50"
+          >Get the embed widget</a
+        >
+      </div>
+      <p class="mt-6 text-sm text-ink-400">
+        Nothing to install. Nothing stored. Works with every email and CMS.
+      </p>
+    </div>
+  </section>
+
+  <Generator />
+
+  <!-- value props -->
+  <section class="border-y border-ink-100 bg-ink-50/60">
+    <div class="mx-auto grid max-w-5xl gap-8 px-5 py-14 sm:grid-cols-3">
+      <div>
+        <h2 class="font-semibold">Correct timezones</h2>
+        <p class="mt-2 text-sm text-ink-600">
+          Most generators send UTC timestamps with a timezone hint attached, which makes Google
+          Calendar display the wrong zone. This one sends local wall time plus the zone, the way
+          each provider expects it.
+        </p>
+      </div>
+      <div>
+        <h2 class="font-semibold">Built for email</h2>
+        <p class="mt-2 text-sm text-ink-600">
+          The HTML snippet is plain anchor tags with inline styles. No script, no external CSS, so
+          it survives Outlook, Gmail and every newsletter builder.
+        </p>
+      </div>
+      <div>
+        <h2 class="font-semibold">Optional click counting</h2>
+        <p class="mt-2 text-sm text-ink-600">
+          See how many people actually added your event and which calendar they use. No cookies, no
+          IP logging, no consent banner needed.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- guides -->
+  <section class="mx-auto max-w-5xl px-5 py-14">
+    <h2 class="text-2xl font-bold tracking-tight">Guides per calendar</h2>
+    <p class="mt-2 max-w-2xl text-ink-600">
+      The exact URL format, the parameters that matter and the mistakes that quietly break events.
+    </p>
+    <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        GUIDES.map((guide) => (
+          <a
+            href={`/how-to/${guide.slug}`}
+            class="rounded-2xl border border-ink-200 bg-white p-5 transition hover:border-brand-500"
+          >
+            <h3 class="font-semibold">{guide.h1}</h3>
+            <p class="mt-1.5 text-sm text-ink-600">{guide.blurb}</p>
+            <span class="mt-3 inline-block text-sm font-medium text-brand-600">Read the guide →</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <Faq items={faq} />
+
+  <!-- final cta -->
+  <section class="mx-auto max-w-3xl px-5 pb-16 text-center">
+    <div class="rounded-3xl border border-ink-200 bg-ink-900 p-9 text-white">
+      <h2 class="text-2xl font-bold tracking-tight">Use it in your own product</h2>
+      <p class="mx-auto mt-2 max-w-lg text-ink-200">
+        The link building core is a small TypeScript module with no dependencies, and there is a
+        keyless JSON API if you would rather call it over HTTP.
+      </p>
+      <div class="mt-6 flex flex-wrap justify-center gap-3">
+        <a href="/api" class="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-ink-900"
+          >Read the API docs</a
+        >
+        <a
+          href={SITE.repo}
+          rel="noopener"
+          class="rounded-lg border border-white/25 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10"
+          >View the source</a
+        >
+      </div>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#eef0fe"/>
+    </linearGradient>
+    <linearGradient id="chip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5b52e8"/>
+      <stop offset="100%" stop-color="#4338ca"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="8" fill="#4f46e5"/>
+
+  <!-- logo mark -->
+  <rect x="80" y="72" width="64" height="64" rx="15" fill="url(#chip)"/>
+  <path d="M100 88v8M124 88v8" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+  <rect x="94" y="94" width="36" height="30" rx="6" fill="none" stroke="#fff" stroke-width="4.5"/>
+  <path d="M94 104h36" stroke="#fff" stroke-width="4.5"/>
+  <path d="M104 113l5 5 10-11" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <text x="164" y="118" font-family="Helvetica, Arial, sans-serif" font-size="34" font-weight="700" fill="#1e1b3a">CalendarButton</text>
+
+  <!-- headline -->
+  <text x="80" y="256" font-family="Helvetica, Arial, sans-serif" font-size="76" font-weight="700" fill="#141230">Add to calendar links,</text>
+  <text x="80" y="344" font-family="Helvetica, Arial, sans-serif" font-size="76" font-weight="700" fill="#4f46e5">generated in seconds</text>
+
+  <text x="80" y="410" font-family="Helvetica, Arial, sans-serif" font-size="30" fill="#4a4a68">Free and open source. No account, no limits, correct timezones.</text>
+
+  <!-- provider chips -->
+  <g font-family="Helvetica, Arial, sans-serif" font-size="23" font-weight="600" fill="#26243f">
+    <rect x="80"  y="462" width="196" height="58" rx="29" fill="#fff" stroke="#d9dced" stroke-width="2"/>
+    <text x="178" y="499" text-anchor="middle">Google</text>
+    <rect x="292" y="462" width="196" height="58" rx="29" fill="#fff" stroke="#d9dced" stroke-width="2"/>
+    <text x="390" y="499" text-anchor="middle">Outlook</text>
+    <rect x="504" y="462" width="222" height="58" rx="29" fill="#fff" stroke="#d9dced" stroke-width="2"/>
+    <text x="615" y="499" text-anchor="middle">Office 365</text>
+    <rect x="742" y="462" width="170" height="58" rx="29" fill="#fff" stroke="#d9dced" stroke-width="2"/>
+    <text x="827" y="499" text-anchor="middle">Yahoo</text>
+    <rect x="928" y="462" width="192" height="58" rx="29" fill="#fff" stroke="#d9dced" stroke-width="2"/>
+    <text x="1024" y="499" text-anchor="middle">Apple .ics</text>
+  </g>
+
+  <text x="80" y="586" font-family="Helvetica, Arial, sans-serif" font-size="25" font-weight="600" fill="#7a7a95">calendarbutton.io</text>
+</svg>

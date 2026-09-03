@@ -1,0 +1,144 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import { SITE } from '../config';
+
+const rows = [
+  ['Price', 'Free, no tiers', 'Free tier with caps, paid plans above it'],
+  ['Account required', 'No', 'Yes'],
+  ['Event limit', 'None', 'Capped on free tiers'],
+  ['Click limit', 'None', 'Commonly capped on free tiers'],
+  ['Branding on your links', 'None', 'Usually on free tiers'],
+  ['Google, Outlook, Office 365, Yahoo, .ics', 'Yes', 'Yes'],
+  ['Embeddable button', 'Yes', 'Yes'],
+  ['Click analytics', 'Yes, per calendar', 'Yes, usually richer'],
+  ['RSVP and ticketing', 'No', 'Yes'],
+  ['Subscribable calendar feeds', 'No', 'Yes'],
+  ['Editing an event after sending', 'No, links are self-contained', 'Yes, links point at a record'],
+  ['Source available', 'Yes, MIT licensed', 'No'],
+  ['Self-hosting', 'Yes', 'No'],
+  ['Stores your event data', 'No', 'Yes'],
+];
+
+const faq = [
+  {
+    q: 'What is the actual catch?',
+    a: `Two real limitations. Because a link contains the whole event, you cannot change an event after you have sent the link out: you generate a new one. And there is no RSVP, ticketing or subscribable feed. If you need those, a hosted service earns its money.`,
+  },
+  {
+    q: 'How can it be free?',
+    a: `The links are built in your browser, so there is almost no server to pay for. The static site and the handful of edge functions fit inside a free hosting tier. That is the whole business model, and it is why there is no upgrade prompt anywhere.`,
+  },
+  {
+    q: 'Will it disappear in a year?',
+    a: `Possible, which is why it is open source and MIT licensed. Clone it and run it yourself, or lift the link building module into your own codebase. And every link already generated keeps working regardless, since nothing about it depends on this site.`,
+  },
+  {
+    q: 'Can I migrate away later?',
+    a: `There is nothing to migrate. Your events were never stored here. If you move to a hosted service you regenerate your links there.`,
+  },
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  },
+];
+---
+
+<Base
+  title="A free, open source AddEvent alternative"
+  description="An honest comparison between a free open source add to calendar link generator and hosted services like AddEvent: what you gain, and the two things you give up."
+  path="/vs-addevent"
+  schema={schema}
+>
+  <div class="mx-auto max-w-3xl px-5 py-12">
+    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">A free AddEvent alternative</h1>
+    <p class="mt-4 text-lg text-ink-600">
+      Hosted add to calendar services do a lot more than generate links, and some teams need that.
+      Most people asking for an "add to calendar button" need five URLs in the right format. This
+      page lays out which group you are in.
+    </p>
+
+    <div class="mt-10 overflow-x-auto">
+      <table class="w-full border-collapse text-sm">
+        <thead>
+          <tr>
+            <th class="border-b border-ink-200 pb-3 text-left font-semibold"></th>
+            <th class="border-b border-ink-200 pb-3 text-left font-semibold">{SITE.name}</th>
+            <th class="border-b border-ink-200 pb-3 text-left font-semibold text-ink-600"
+              >Hosted services</th
+            >
+          </tr>
+        </thead>
+        <tbody>
+          {
+            rows.map(([label, ours, theirs]) => (
+              <tr>
+                <td class="border-b border-ink-100 py-3 pr-4 font-medium">{label}</td>
+                <td class="border-b border-ink-100 py-3 pr-4">{ours}</td>
+                <td class="border-b border-ink-100 py-3 text-ink-600">{theirs}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-3 text-xs text-ink-400">
+      Free-tier caps and pricing change often, so the right column describes the general shape
+      rather than any one vendor's current plan. Check theirs before deciding.
+    </p>
+
+    <div class="prose-page mt-12">
+      <h2>Use a hosted service if</h2>
+      <ul>
+        <li>You need RSVPs, ticketing or attendee lists.</li>
+        <li>You want people to subscribe to a whole calendar of events, not add one.</li>
+        <li>You need to change an event's time after the links have gone out.</li>
+        <li>You want a support contract and someone accountable for uptime.</li>
+      </ul>
+
+      <h2>Use this if</h2>
+      <ul>
+        <li>You have events and want people to add them. That is it.</li>
+        <li>You would rather not create an account to generate a URL.</li>
+        <li>You do not want your event details sitting in someone else's database.</li>
+        <li>You want the links to keep working whatever happens to the tool.</li>
+        <li>You are a developer and would rather import a module than call an API.</li>
+      </ul>
+
+      <h2>The self-contained link, and what it costs you</h2>
+      <p>
+        The design decision behind everything here is that the event lives inside the link. That is
+        why there is no account, no database and no expiry. It is also the one real trade-off: to
+        change an event you generate a new link, and anyone holding the old one still has the old
+        details.
+      </p>
+      <p>
+        For a webinar announced two weeks out this rarely matters. For a conference programme that
+        shifts around for months, a hosted record you can edit is genuinely worth paying for. Be
+        honest with yourself about which one you are running.
+      </p>
+    </div>
+
+    <div class="mt-10 rounded-2xl border border-brand-100 bg-brand-50 p-6">
+      <h2 class="font-semibold">Try it before you decide</h2>
+      <p class="mt-1 text-sm text-ink-600">
+        No account, so testing costs you a minute.
+      </p>
+      <a
+        href="/#generator"
+        class="mt-4 inline-block rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+        >Generate a link</a
+      >
+    </div>
+  </div>
+
+  <Faq items={faq} title="The honest questions" />
+</Base>

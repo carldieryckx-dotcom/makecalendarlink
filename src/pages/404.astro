@@ -1,0 +1,34 @@
+---
+import Base from '../layouts/Base.astro';
+import { GUIDES } from '../data/guides';
+---
+
+<Base title="Page not found" description="That page does not exist." noindex>
+  <div class="mx-auto max-w-xl px-5 py-24 text-center">
+    <p class="text-sm font-medium text-brand-600">404</p>
+    <h1 class="mt-2 text-3xl font-bold tracking-tight">That page does not exist</h1>
+    <p class="mt-3 text-ink-600">
+      If you followed a calendar link that got cut in half by an email client, ask the sender to
+      resend it. Long links break when a client wraps them across two lines.
+    </p>
+    <a
+      href="/"
+      class="mt-7 inline-block rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+      >Go to the generator</a
+    >
+    <div class="mt-10 text-left">
+      <p class="text-sm font-semibold">Or read a guide</p>
+      <ul class="mt-2 space-y-1 text-sm">
+        {
+          GUIDES.map((g) => (
+            <li>
+              <a href={`/how-to/${g.slug}`} class="text-brand-600 underline">
+                {g.h1}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</Base>

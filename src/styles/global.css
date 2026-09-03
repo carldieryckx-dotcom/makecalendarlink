@@ -1,0 +1,80 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter var', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --color-ink-50: oklch(0.985 0.002 250);
+  --color-ink-100: oklch(0.96 0.004 250);
+  --color-ink-200: oklch(0.9 0.006 250);
+  --color-ink-400: oklch(0.62 0.015 250);
+  --color-ink-600: oklch(0.45 0.02 250);
+  --color-ink-800: oklch(0.28 0.025 255);
+  --color-ink-900: oklch(0.18 0.03 260);
+  --color-brand-50: oklch(0.97 0.02 255);
+  --color-brand-100: oklch(0.93 0.045 255);
+  --color-brand-500: oklch(0.58 0.19 260);
+  --color-brand-600: oklch(0.51 0.2 262);
+  --color-brand-700: oklch(0.44 0.18 263);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-white text-ink-900 antialiased;
+  font-family: var(--font-sans);
+}
+
+/* Consistent focus ring on every interactive element. */
+:where(a, button, input, select, textarea, summary):focus-visible {
+  @apply outline-none ring-2 ring-brand-500 ring-offset-2;
+}
+
+/* Output format tabs in the generator. */
+.atc-tab {
+  @apply rounded-lg border border-ink-200 px-3 py-1.5 text-sm font-medium text-ink-600 hover:bg-ink-50;
+}
+.atc-tab[aria-selected='true'] {
+  @apply border-brand-600 bg-brand-600 text-white hover:bg-brand-700;
+}
+
+.prose-page {
+  @apply text-ink-800 leading-relaxed;
+}
+.prose-page h2 {
+  @apply mt-10 mb-3 text-2xl font-semibold tracking-tight text-ink-900;
+}
+.prose-page h3 {
+  @apply mt-7 mb-2 text-lg font-semibold text-ink-900;
+}
+.prose-page p {
+  @apply my-4;
+}
+.prose-page ul {
+  @apply my-4 list-disc space-y-2 pl-5;
+}
+.prose-page ol {
+  @apply my-4 list-decimal space-y-2 pl-5;
+}
+.prose-page a {
+  @apply text-brand-600 underline decoration-brand-600/30 underline-offset-2 hover:decoration-brand-600;
+}
+.prose-page code {
+  @apply rounded bg-ink-100 px-1.5 py-0.5 font-mono text-[0.85em];
+}
+.prose-page pre {
+  @apply my-5 overflow-x-auto rounded-xl bg-ink-900 p-4 text-sm text-ink-100;
+}
+.prose-page pre code {
+  @apply bg-transparent p-0 text-inherit;
+}
+.prose-page table {
+  @apply my-6 w-full border-collapse text-sm;
+}
+.prose-page th {
+  @apply border-b border-ink-200 pb-2 text-left font-semibold;
+}
+.prose-page td {
+  @apply border-b border-ink-100 py-2 align-top;
+}

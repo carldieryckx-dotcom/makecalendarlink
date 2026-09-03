@@ -1,0 +1,158 @@
+---
+import Base from '../../layouts/Base.astro';
+import { decodeEvent } from '../../lib/encode';
+import { buildTrackedLinks } from '../../lib/output';
+import { SITE } from '../../config';
+import type { CalendarEvent } from '../../lib/event';
+
+export const prerender = false;
+
+/**
+ * A shareable event page. The whole event travels inside the URL, so this
+ * works with no database at all: paste the link in a chat, a bio or a QR code
+ * and the visitor picks their own calendar.
+ */
+const raw = Astro.params.data ?? '';
+
+let event: CalendarEvent | null = null;
+let targets: ReturnType<typeof buildTrackedLinks>['targets'] = [];
+
+try {
+  event = decodeEvent(raw);
+  targets = buildTrackedLinks(event, { origin: SITE.url }).targets;
+} catch {
+  event = null;
+}
+
+if (!event) {
+  Astro.response.status = 404;
+}
+
+const when = (() => {
+  if (!event) return '';
+  try {
+    const opts: Intl.DateTimeFormatOptions = event.allDay
+      ? { dateStyle: 'full', timeZone: event.timeZone }
+      : { dateStyle: 'full', timeStyle: 'short', timeZone: event.timeZone };
+    const instant = new Date(`${event.start}${event.allDay ? 'T00:00' : ''}:00Z`);
+    return new Intl.DateTimeFormat('en-GB', opts).format(instant);
+  } catch {
+    return event.start;
+  }
+})();
+
+const schema = event
+  ? [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Event',
+        name: event.title,
+        startDate: event.start,
+        endDate: event.end,
+        eventAttendanceMode: event.location?.startsWith('http')
+          ? 'https://schema.org/OnlineEventAttendanceMode'
+          : 'https://schema.org/OfflineEventAttendanceMode',
+        ...(event.location
+          ? event.location.startsWith('http')
+            ? { location: { '@type': 'VirtualLocation', url: event.location } }
+            : { location: { '@type': 'Place', name: event.location } }
+          : {}),
+        ...(event.description ? { description: event.description } : {}),
+      },
+    ]
+  : [];
+---
+
+<Base
+  title={event ? event.title : 'Event not found'}
+  description={event
+    ? `${event.title} — ${when}. Add it to Google Calendar, Outlook, Office 365, Yahoo or Apple Calendar in one click.`
+    : 'This calendar link is not valid.'}
+  schema={schema}
+  noindex
+>
+  <div class="mx-auto max-w-2xl px-5 py-16">
+    {
+      !event && (
+        <div class="text-center">
+          <h1 class="text-2xl font-bold tracking-tight">This link is not valid</h1>
+          <p class="mt-2 text-ink-600">
+            It may have been cut short somewhere along the way. Email clients sometimes break long
+            links across two lines.
+          </p>
+          <a
+            href="/"
+            class="mt-6 inline-block rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white"
+            >Make a new link</a
+          >
+        </div>
+      )
+    }
+
+    {
+      event && (
+        <>
+          <div class="rounded-3xl border border-ink-200 bg-white p-7 sm:p-9">
+            <p class="text-sm font-medium text-brand-600">You are invited</p>
+            <h1 class="mt-2 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+              {event.title}
+            </h1>
+            <dl class="mt-6 space-y-3 text-sm">
+              <div class="flex gap-3">
+                <dt class="w-20 shrink-0 font-medium text-ink-400">When</dt>
+                <dd class="text-ink-800">
+                  {when}
+                  <span class="block text-ink-400">
+                    {event.timeZone.replace(/_/g, ' ')}
+                    {event.allDay ? ' · all day' : ''}
+                  </span>
+                </dd>
+              </div>
+              {event.location && (
+                <div class="flex gap-3">
+                  <dt class="w-20 shrink-0 font-medium text-ink-400">Where</dt>
+                  <dd class="break-all text-ink-800">
+                    {event.location.startsWith('http') ? (
+                      <a href={event.location} rel="noopener" class="text-brand-600 underline">
+                        {event.location}
+                      </a>
+                    ) : (
+                      event.location
+                    )}
+                  </dd>
+                </div>
+              )}
+              {event.description && (
+                <div class="flex gap-3">
+                  <dt class="w-20 shrink-0 font-medium text-ink-400">Details</dt>
+                  <dd class="whitespace-pre-line text-ink-800">{event.description}</dd>
+                </div>
+              )}
+            </dl>
+
+            <div class="mt-8 border-t border-ink-100 pt-6">
+              <p class="text-sm font-semibold">Add to your calendar</p>
+              <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                {targets.map((t) => (
+                  <a
+                    href={t.href}
+                    target="_blank"
+                    rel="noopener"
+                    class="rounded-xl border border-ink-200 px-4 py-3 text-sm font-medium text-ink-800 hover:border-brand-500 hover:text-brand-700"
+                  >
+                    {t.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <p class="mt-6 text-center text-sm text-ink-400">
+            Page built by <a href="/" class="underline hover:text-ink-800">{SITE.name}</a>, a free
+            add to calendar link generator.
+          </p>
+        </>
+      )
+    }
+  </div>
+</Base>

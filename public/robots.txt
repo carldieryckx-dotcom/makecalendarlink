@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Generated pages carry the whole event in the URL. Nothing secret, but there
+# is no reason for a crawler to index a million variations of them.
+Disallow: /e/
+Disallow: /go/
+Disallow: /stats/
+Disallow: /api/ics
+Disallow: /api/links
+
+Sitemap: https://calendarbutton.io/sitemap-index.xml

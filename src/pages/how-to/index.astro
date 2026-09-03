@@ -1,0 +1,63 @@
+---
+import Base from '../../layouts/Base.astro';
+import { GUIDES } from '../../data/guides';
+import { USE_CASES } from '../../data/use-cases';
+---
+
+<Base
+  title="Add to calendar link guides for every calendar"
+  description="How to build add to calendar links for Google Calendar, Outlook, Office 365, Apple Calendar and Yahoo, with the exact URL formats and the mistakes to avoid."
+  path="/how-to"
+>
+  <div class="mx-auto max-w-4xl px-5 py-12">
+    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Add to calendar link guides</h1>
+    <p class="mt-4 max-w-2xl text-lg text-ink-600">
+      Each calendar provider expects a different URL. These guides cover the exact format, every
+      parameter that matters, and the timezone and all-day mistakes that silently put events on the
+      wrong day.
+    </p>
+
+    <h2 class="mt-12 text-lg font-semibold tracking-tight">By calendar</h2>
+    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+      {
+        GUIDES.map((guide) => (
+          <a
+            href={`/how-to/${guide.slug}`}
+            class="rounded-2xl border border-ink-200 bg-white p-5 hover:border-brand-500"
+          >
+            <h3 class="font-semibold">{guide.h1}</h3>
+            <p class="mt-1.5 text-sm text-ink-600">{guide.blurb}</p>
+          </a>
+        ))
+      }
+    </div>
+
+    <h2 class="mt-12 text-lg font-semibold tracking-tight">By use case</h2>
+    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+      {
+        USE_CASES.map((uc) => (
+          <a
+            href={`/for/${uc.slug}`}
+            class="rounded-2xl border border-ink-200 bg-white p-5 hover:border-brand-500"
+          >
+            <h3 class="font-semibold">{uc.h1}</h3>
+            <p class="mt-1.5 text-sm text-ink-600">{uc.blurb}</p>
+          </a>
+        ))
+      }
+    </div>
+
+    <div class="mt-12 rounded-2xl border border-ink-200 bg-ink-50 p-6">
+      <h2 class="font-semibold">Skip the reading</h2>
+      <p class="mt-1 text-sm text-ink-600">
+        The generator builds all five links at once, correctly encoded, with an HTML snippet you can
+        paste straight into a newsletter.
+      </p>
+      <a
+        href="/#generator"
+        class="mt-4 inline-block rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+        >Open the generator</a
+      >
+    </div>
+  </div>
+</Base>

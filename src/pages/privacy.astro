@@ -1,0 +1,83 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../config';
+---
+
+<Base
+  title="Privacy"
+  description="What this tool stores, which is almost nothing, and why there is no cookie banner."
+  path="/privacy"
+>
+  <div class="mx-auto max-w-3xl px-5 py-12">
+    <h1 class="text-3xl font-bold tracking-tight">Privacy</h1>
+    <p class="mt-2 text-sm text-ink-400">Short, because there is not much to report.</p>
+
+    <div class="prose-page">
+      <h2>Your event details</h2>
+      <p>
+        The links are built in your browser. Your event title, times, location and description are
+        never sent to this site's server when you generate a link, and they are never written to a
+        database. They travel inside the link itself, which is why the link works forever and why
+        there is nothing here to delete.
+      </p>
+      <p>
+        One consequence worth understanding: anyone with the link can read the event details, since
+        they are encoded in the URL. The encoding is for URL safety, not secrecy. Do not put
+        confidential information in an event you are about to share as a link.
+      </p>
+
+      <h2>Cookies</h2>
+      <p>None. No analytics script, no tag manager, no third-party pixel, no consent banner.</p>
+
+      <h2>If you turn on click counting</h2>
+      <p>When a tracked link is used, one row is written:</p>
+      <ul>
+        <li>The event key, a short hash of the event details</li>
+        <li>Which calendar was chosen</li>
+        <li>The timestamp</li>
+        <li>A two-letter country code from the edge network</li>
+        <li>The host of the referring page, without the path or query string</li>
+      </ul>
+      <p>Deliberately not stored: IP addresses, user agents, cookies, device identifiers, anything that identifies a person.</p>
+      <p>
+        On the first tracked click, the event title, start and timezone are stored once so the
+        dashboard has something to label the numbers with.
+      </p>
+
+      <h2>Who can see the numbers</h2>
+      <p>
+        Anyone with the dashboard URL. It is unlisted, not protected, and those pages are marked
+        <code>noindex</code> so search engines skip them. Treat the link as you would an unlisted
+        video.
+      </p>
+
+      <h2>Hosting</h2>
+      <p>
+        The site runs on Cloudflare's edge network. Cloudflare processes request metadata to serve
+        and protect the site, as any host does. Server access logs are not retained by this project.
+      </p>
+
+      <h2>The .ics endpoint</h2>
+      <p>
+        Requesting an <code>.ics</code> file sends the encoded event to the server, because the file
+        has to be generated somewhere. It is not logged or stored, and the response is cached by
+        content. When tracking is off, the browser can build the file locally instead, and this tool
+        does that by default.
+      </p>
+
+      <h2>GDPR</h2>
+      <p>
+        No personal data is collected, so there is no processing to consent to and no data subject
+        request to fulfil. If you use tracked links with your own audience, you are not adding a
+        processor to your own privacy notice either, though check with whoever owns that document.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions or a correction: <a href={`mailto:${SITE.email}`}>{SITE.email}</a>. The code is
+        <a href={SITE.repo}>public</a>, so you can verify all of the above rather than take it on
+        trust.
+      </p>
+    </div>
+  </div>
+</Base>

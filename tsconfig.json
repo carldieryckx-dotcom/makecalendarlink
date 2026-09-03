@@ -1,0 +1,16 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": false,
+    "verbatimModuleSyntax": true,
+    "types": ["astro/client", "@cloudflare/workers-types"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true
+  },
+  "include": [".astro/types.d.ts", "src/**/*", "widget/**/*", "astro.config.mjs"],
+  "exclude": ["dist", "node_modules", ".astro"]
+}
