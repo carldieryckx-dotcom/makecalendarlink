@@ -1,0 +1,16 @@
+Fraunces is licensed under the SIL Open Font License, Version 1.1.
+
+Copyright 2020 The Fraunces Project Authors
+https://github.com/undercasetype/Fraunces
+
+The full licence text is at https://openfontlicense.org and in the upstream
+repository.
+
+Why the font is here instead of on Google Fonts: loading it from
+fonts.googleapis.com adds a render-blocking third-party stylesheet plus TLS
+handshakes to two extra hosts, which pushed first contentful paint on the
+homepage from roughly 120ms to 470ms. Self-hosting removes both.
+
+Bundled: the latin subset of the variable italic, which is all the headline
+needs. If the headline ever gains accented or extended characters, also copy
+the latin-ext file from Google Fonts.

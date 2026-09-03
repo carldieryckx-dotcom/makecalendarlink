@@ -10,9 +10,21 @@ export interface Props {
   /** JSON-LD objects to inline. */
   schema?: Record<string, unknown>[];
   noindex?: boolean;
+  /**
+   * Load the display serif. Only the homepage headline uses it, so every other
+   * page skips the extra request.
+   */
+  displayFont?: boolean;
 }
 
-const { title, description, path, schema = [], noindex = false } = Astro.props;
+const {
+  title,
+  description,
+  path,
+  schema = [],
+  noindex = false,
+  displayFont = false,
+} = Astro.props;
 
 const canonical = new URL(path ?? Astro.url.pathname, SITE.url).href.replace(/(.+)\/$/, '$1');
 const fullTitle = title.includes(SITE.name) ? title : `${title} | ${SITE.name}`;
@@ -57,6 +69,20 @@ const nav = [
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {
+      /* Self-hosted, so there is no third-party stylesheet to block rendering.
+         Preloaded only on the page that actually uses it. */
+      displayFont && (
+        <link
+          rel="preload"
+          href="/fonts/fraunces-italic-latin.woff2"
+          as="font"
+          type="font/woff2"
+          crossorigin
+        />
+      )
+    }
 
     <script type="application/ld+json" set:html={JSON.stringify(organization)} />
     {schema.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
