@@ -9,4 +9,4 @@ Disallow: /stats/
 Disallow: /api/ics
 Disallow: /api/links
 
-Sitemap: https://calendarbutton.io/sitemap-index.xml
+Sitemap: https://makecalendarlink.com/sitemap-index.xml

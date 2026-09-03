@@ -4,7 +4,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
 // Keep this in sync with SITE.url in src/config.ts.
-const site = 'https://calendarbutton.io';
+const site = 'https://makecalendarlink.com';
 
 export default defineConfig({
   site,

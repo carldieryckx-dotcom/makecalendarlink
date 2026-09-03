@@ -1,23 +1,33 @@
 {
   // Cloudflare Workers configuration.
   //
-  // The site deploys fine without the D1 database below: it is only needed for
-  // click counting. Ship first, add the numbers when you want them.
-  //
-  //   npx wrangler d1 create calendarbutton     -> paste the id it prints
-  //   npm run db:migrate                      -> create the tables
-  //   npm run deploy
+  // Two things here are account-specific. If you fork this, change them or the
+  // deploy will fail against your own account:
+  //   - "routes": your own domain, or remove the block to deploy to workers.dev
+  //   - "database_id": from `npx wrangler d1 create <name>`, or remove the
+  //     whole "d1_databases" block to run without click counting. Leaving a
+  //     placeholder id in place makes the deploy fail with error 10021.
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "calendarbutton",
+  "name": "makecalendarlink",
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
 
+  // Custom domains. Wrangler creates the DNS records and orders the TLS
+  // certificate on deploy, so the domain setup lives in version control
+  // rather than only in the dashboard. www redirects to the apex through a
+  // Redirect Rule, which is a zone setting and not expressible here.
+  "routes": [
+    { "pattern": "makecalendarlink.com", "custom_domain": true },
+    { "pattern": "www.makecalendarlink.com", "custom_domain": true }
+  ],
+
+  // Click analytics. See schema.sql for the tables.
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "calendarbutton",
-      "database_id": "PASTE_YOUR_DATABASE_ID_HERE"
+      "database_name": "makecalendarlink",
+      "database_id": "eea377e1-dfe2-4f20-92b1-b3142072e58d"
     }
   ]
 }

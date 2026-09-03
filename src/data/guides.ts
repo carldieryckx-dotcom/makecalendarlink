@@ -184,9 +184,9 @@ const APPLE: Guide = {
       h2: 'What the file looks like',
       html: `<pre><code>BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//CalendarButton//EN
+PRODID:-//MakeCalendarLink//EN
 BEGIN:VEVENT
-UID:9f2c1a@calendarbutton
+UID:9f2c1a@makecalendarlink
 DTSTAMP:20260601T090000Z
 SUMMARY:Q4 product webinar
 DTSTART;TZID=Europe/Brussels:20260910T140000

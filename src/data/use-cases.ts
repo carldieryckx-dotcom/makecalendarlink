@@ -192,7 +192,7 @@ const WORDPRESS: UseCase = {
      data-end="2026-09-10T15:00"
      data-timezone="Europe/Brussels"
      data-location="https://meet.example.com/abc"&gt;&lt;/div&gt;
-&lt;script src="https://calendarbutton.io/embed.js" async defer&gt;&lt;/script&gt;</code></pre>
+&lt;script src="https://makecalendarlink.com/embed.js" async defer&gt;&lt;/script&gt;</code></pre>
 <p>That is the whole integration. The widget renders inside a shadow root, so your theme's CSS cannot break it and it cannot break your theme.</p>`,
     },
     {

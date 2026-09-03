@@ -15,11 +15,15 @@ Two things matter more than cleverness here, because paid search and organic sea
 
 Check availability at https://domains.cloudflare.com. A `.com` runs about $10-11 a year at cost there, no renewal markup. Candidate shapes, in descending order of how well they tend to work:
 
-| Shape | Examples |
-| --- | --- |
-| Keyword + short suffix | `calendarbutton.io`, `addtocal.com`, `calendarbutton.com` |
-| Two-word literal | `addtocalendar.link`, `eventtocalendar.com` |
-| Invented | `calndrly.com`, `kalendo.app` |
+| Shape | Examples | Typical cost |
+| --- | --- | --- |
+| Exact phrase, `.com` | `makecalendarlink.com`, `eventtocalendar.com` | ~$10/year |
+| Keyword + `.dev` | `addtocalendar.dev` | ~$12/year |
+| Keyword + `.io` | `calendarbutton.io` | ~$50/year |
+
+Check the price before you fall in love with a name. A `.io` currently costs
+about five times a `.com`, which is hard to justify for a tool with no revenue,
+and `.io` is not the stronger keyword match here anyway.
 
 Avoid hyphens, numbers, and anything you have to spell out loud twice.
 
@@ -54,13 +58,13 @@ cd calendar-link-tool
 git init
 git add .
 git commit -m "Initial commit"
-gh repo create calendarbutton --public --source=. --push
+gh repo create makecalendarlink --public --source=. --push
 ```
 
 Without the `gh` CLI: create an empty public repository on github.com, then
 
 ```bash
-git remote add origin https://github.com/<you>/calendarbutton.git
+git remote add origin https://github.com/<you>/makecalendarlink.git
 git branch -M main
 git push -u origin main
 ```
@@ -73,11 +77,11 @@ Edit `src/config.ts`:
 
 ```ts
 export const SITE = {
-  name: 'CalendarButton',                                   // your product name
-  url: 'https://calendarbutton.io',                          // your domain, no trailing slash
+  name: 'MakeCalendarLink',                                   // your product name
+  url: 'https://makecalendarlink.com',                          // your domain, no trailing slash
   tagline: 'Free add to calendar links for ...',
-  repo: 'https://github.com/<you>/calendarbutton',
-  email: 'hello@calendarbutton.io',
+  repo: 'https://github.com/<you>/makecalendarlink',
+  email: 'hello@makecalendarlink.com',
   fallbackTimeZone: 'Europe/Brussels',
 };
 ```
@@ -102,7 +106,7 @@ npx wrangler login          # opens a browser, authorises the CLI
 npm run deploy
 ```
 
-You get a URL like `https://calendarbutton.<your-subdomain>.workers.dev`. Open it and check the generator works end to end: fill in an event, generate, click the Google link, confirm the event appears at the hour you typed.
+You get a URL like `https://makecalendarlink.<your-subdomain>.workers.dev`. Open it and check the generator works end to end: fill in an event, generate, click the Google link, confirm the event appears at the hour you typed.
 
 ---
 
@@ -112,15 +116,15 @@ Dashboard, Workers & Pages, your worker, Settings, Domains & Routes, Add, Custom
 
 Add both:
 
-- `calendarbutton.io`
-- `www.calendarbutton.io`
+- `makecalendarlink.com`
+- `www.makecalendarlink.com`
 
 Cloudflare creates the DNS records and issues the TLS certificate. Live within a couple of minutes.
 
 Then make one of them canonical, so search engines do not see two copies of the site. Dashboard, Rules, Redirect Rules, Create rule:
 
-- **If** hostname equals `www.calendarbutton.io`
-- **Then** dynamic redirect, 301, expression `concat("https://calendarbutton.io", http.request.uri.path)`
+- **If** hostname equals `www.makecalendarlink.com`
+- **Then** dynamic redirect, 301, expression `concat("https://makecalendarlink.com", http.request.uri.path)`
 
 ---
 
@@ -129,7 +133,7 @@ Then make one of them canonical, so search engines do not see two copies of the 
 Optional. Skip it and the site works fine; the dashboard page just says tracking is not configured.
 
 ```bash
-npx wrangler d1 create calendarbutton
+npx wrangler d1 create makecalendarlink
 ```
 
 It prints a `database_id`. Paste it into `wrangler.jsonc`, replacing `PASTE_YOUR_DATABASE_ID_HERE`. Then:
@@ -145,7 +149,7 @@ For local development the tables live in a separate local database:
 
 ```bash
 npm run build
-npx wrangler d1 execute calendarbutton -c dist/server/wrangler.json --local --file=./schema.sql
+npx wrangler d1 execute makecalendarlink -c dist/server/wrangler.json --local --file=./schema.sql
 npm run preview
 ```
 
@@ -191,7 +195,7 @@ Check all of these first. Sending paid traffic at a broken page is the most expe
 - [ ] The site scores green on PageSpeed Insights
 - [ ] Search Console shows the homepage as indexed
 
-The marketing plan lives next to this file: see `../CalendarButton - SEO en AdWords playbook.md` in the vault.
+The marketing plan lives next to this file: see `../MakeCalendarLink - SEO en AdWords playbook.md` in the vault.
 
 ---
 

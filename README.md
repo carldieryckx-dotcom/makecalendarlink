@@ -1,4 +1,4 @@
-# CalendarButton
+# MakeCalendarLink
 
 A free, open source add to calendar link generator. Fill in an event once, get working links for Google Calendar, Outlook.com, Outlook 365, Yahoo Calendar and Apple Calendar, plus an HTML snippet for newsletters and a drop-in JavaScript widget for websites.
 
@@ -19,8 +19,8 @@ The event lives inside the link. When you generate a link, the event details are
 ## Quick start
 
 ```bash
-git clone https://github.com/carldieryckx-dotcom/calendarbutton
-cd calendarbutton
+git clone https://github.com/carldieryckx-dotcom/makecalendarlink
+cd makecalendarlink
 npm install
 npm run dev
 ```
@@ -39,7 +39,7 @@ npm run deploy
 Click counting needs a D1 database. Everything else works without one:
 
 ```bash
-npx wrangler d1 create calendarbutton   # paste the id into wrangler.jsonc
+npx wrangler d1 create makecalendarlink   # paste the id into wrangler.jsonc
 npm run db:migrate
 npm run deploy
 ```
@@ -50,11 +50,11 @@ Everything brand-specific is in one file, `src/config.ts`:
 
 ```ts
 export const SITE = {
-  name: 'CalendarButton',
-  url: 'https://calendarbutton.io',
+  name: 'MakeCalendarLink',
+  url: 'https://makecalendarlink.com',
   tagline: '...',
-  repo: 'https://github.com/carldieryckx-dotcom/calendarbutton',
-  email: 'hello@calendarbutton.io',
+  repo: 'https://github.com/carldieryckx-dotcom/makecalendarlink',
+  email: 'hello@makecalendarlink.com',
   fallbackTimeZone: 'Europe/Brussels',
 };
 ```
@@ -95,7 +95,7 @@ There is also a keyless HTTP API at `/api/links` if you would rather not vendor 
      data-end="2026-09-10T15:00"
      data-timezone="Europe/Brussels"></div>
 
-<script src="https://calendarbutton.io/embed.js" async defer></script>
+<script src="https://makecalendarlink.com/embed.js" async defer></script>
 ```
 
 Around 4 KB gzipped, no dependencies, renders in a shadow root so host CSS cannot reach it. Full attribute list on the `/embed` page.

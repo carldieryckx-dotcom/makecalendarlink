@@ -9,7 +9,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const ORIGIN = 'https://calendarbutton.io';
+const ORIGIN = 'https://makecalendarlink.com';
 
 async function mount(attrs: Record<string, string>, html = '') {
   document.head.innerHTML = `<script src="${ORIGIN}/embed.js"></script>`;
