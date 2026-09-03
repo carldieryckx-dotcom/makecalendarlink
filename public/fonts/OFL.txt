@@ -1,16 +1,24 @@
-Fraunces is licensed under the SIL Open Font License, Version 1.1.
+Literata is licensed under the SIL Open Font License, Version 1.1.
 
-Copyright 2020 The Fraunces Project Authors
-https://github.com/undercasetype/Fraunces
+Copyright 2018 The Literata Project Authors
+https://github.com/googlefonts/literata
 
-The full licence text is at https://openfontlicense.org and in the upstream
-repository.
+Full licence text: https://openfontlicense.org
 
-Why the font is here instead of on Google Fonts: loading it from
-fonts.googleapis.com adds a render-blocking third-party stylesheet plus TLS
-handshakes to two extra hosts, which pushed first contentful paint on the
-homepage from roughly 120ms to 470ms. Self-hosting removes both.
+What is bundled and why
+-----------------------
+literata-italic-700-latin.woff2 is the 700 italic, latin subset, with the
+variable optical-size axis pinned at 48 (the size the headline renders at).
+That takes it from 52 kB to 22 kB. It covers the full latin range, so editing
+the headline text is safe; only accented-beyond-latin or non-latin characters
+would fall back to Georgia.
 
-Bundled: the latin subset of the variable italic, which is all the headline
-needs. If the headline ever gains accented or extended characters, also copy
-the latin-ext file from Google Fonts.
+Self-hosted rather than loaded from Google Fonts, because the third-party
+stylesheet is render-blocking and adds TLS handshakes to two extra hosts.
+
+To regenerate after a headline size change, or to update the font:
+  curl "https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@1,7..72,700"
+  # take the latin woff2 from that CSS, then
+  python3 -m fontTools.varLib.instancer <file> opsz=48 -o pinned.ttf
+  python3 -m fontTools.subset pinned.ttf --unicodes=<latin range> \
+      --layout-features='*' --flavor=woff2 --output-file=<out>.woff2

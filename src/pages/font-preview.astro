@@ -1,0 +1,101 @@
+---
+import Base from '../layouts/Base.astro';
+
+/**
+ * TEMPORARY. Delete this file once the headline serif is picked.
+ *
+ * It loads candidates straight from Google Fonts, which is fine here because
+ * this page is never shown to visitors and never indexed. The winner gets
+ * self-hosted like Fraunces is now.
+ */
+const CANDIDATES = [
+  {
+    name: 'Playfair Display',
+    css: 'Playfair+Display:ital,wght@1,800',
+    weight: 800,
+    note: 'High contrast, editorial. The safe, recognisable choice. Slightly overexposed.',
+  },
+  {
+    name: 'Bodoni Moda',
+    css: 'Bodoni+Moda:ital,opsz,wght@1,6..96,700',
+    weight: 700,
+    note: 'Extreme contrast, fashion-magazine feel. Dramatic at large sizes, thin hairlines.',
+  },
+  {
+    name: 'Newsreader',
+    css: 'Newsreader:ital,opsz,wght@1,6..72,700',
+    weight: 700,
+    note: 'Contemporary, softer, less shouty. Pairs quietly with a sans UI.',
+  },
+  {
+    name: 'Source Serif 4',
+    css: 'Source+Serif+4:ital,opsz,wght@1,8..60,700',
+    weight: 700,
+    note: 'Neutral and technical. Reads as engineering rather than lifestyle.',
+  },
+  {
+    name: 'Literata',
+    css: 'Literata:ital,opsz,wght@1,7..72,700',
+    weight: 700,
+    note: 'Warm and sturdy, designed for long reading. Friendly without being cute.',
+  },
+  {
+    name: 'Crimson Pro',
+    css: 'Crimson+Pro:ital,wght@1,700',
+    weight: 700,
+    note: 'Classical book serif. Understated, a little old-world.',
+  },
+  {
+    name: 'Instrument Serif',
+    css: 'Instrument+Serif:ital@1',
+    weight: 400,
+    note: 'The first attempt. Elegant but single-weight, so it cannot go bold.',
+  },
+  {
+    name: 'Fraunces',
+    css: 'Fraunces:ital,opsz,wght@1,9..144,700',
+    weight: 700,
+    note: 'What is live now. Quirky, wonky details, very of-the-moment.',
+  },
+];
+
+const href = `https://fonts.googleapis.com/css2?${CANDIDATES.map((c) => `family=${c.css}`).join('&')}&display=swap`;
+---
+
+<Base title="Headline font candidates" description="Internal font comparison." noindex>
+  {/* Base has no head slot, so the webfont CSS is imported from a style tag. */}
+  <style set:html={`@import url('${href}');`}></style>
+
+  <div class="mx-auto max-w-4xl px-5 py-12">
+    <p class="text-sm font-medium text-brand-600">Internal, noindex, temporary</p>
+    <h1 class="mt-2 text-2xl font-bold tracking-tight">Headline font candidates</h1>
+    <p class="mt-2 max-w-2xl text-sm text-ink-600">
+      Each block is the real homepage headline at the real size. Only the italic part changes
+      font. Pick one and it gets self-hosted; this page then gets deleted.
+    </p>
+
+    <div class="mt-10 space-y-10">
+      {
+        CANDIDATES.map((c, i) => (
+          <section class="rounded-2xl border border-ink-200 bg-white p-6">
+            <div class="flex flex-wrap items-baseline justify-between gap-2">
+              <p class="text-sm font-semibold text-ink-900">
+                {i + 1}. {c.name}{' '}
+                <span class="font-normal text-ink-400">· weight {c.weight}</span>
+              </p>
+            </div>
+            <p class="mt-1 text-sm text-ink-600">{c.note}</p>
+
+            <h2 class="mt-5 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl">
+              <em
+                class="font-normal italic tracking-normal text-brand-600"
+                style={`font-family:'${c.name}',Georgia,serif;font-weight:${c.weight};font-size:1.1em;`}
+                >Add to calendar</em
+              > links,<br class="hidden sm:block" /> generated in seconds
+            </h2>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</Base>
