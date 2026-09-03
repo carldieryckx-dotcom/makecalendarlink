@@ -123,6 +123,40 @@ export function toIsoWithOffset(p: NaiveParts, timeZone: string): string {
   );
 }
 
+/**
+ * Human-readable label for a wall-clock time, in the numbers the user typed.
+ *
+ * The obvious implementation is wrong: `new Date(start + 'Z')` treats the wall
+ * time as UTC and then converting it into the event's zone shifts it by the
+ * offset, so a 14:00 Brussels event reads as 16:00 and an all-day event in a
+ * negative-offset zone reads as the previous day. Formatting a UTC-built date
+ * in UTC prints the components unchanged, which is what a confirmation line
+ * should do.
+ */
+export function formatWallTime(
+  wall: string | NaiveParts,
+  options: { locale?: string; allDay?: boolean } = {},
+): string {
+  const p = typeof wall === 'string' ? parseNaive(wall) : wall;
+  const allDay = options.allDay ?? !p.hasTime;
+  const instant = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+
+  const fmt: Intl.DateTimeFormatOptions = allDay
+    ? { dateStyle: 'full', timeZone: 'UTC' }
+    : { dateStyle: 'full', timeStyle: 'short', timeZone: 'UTC' };
+
+  try {
+    return new Intl.DateTimeFormat(options.locale, fmt).format(new Date(instant));
+  } catch {
+    return allDay ? toDateIso(p) : `${toDateIso(p)} ${pad(p.hour)}:${pad(p.minute)}`;
+  }
+}
+
+/** `Europe/Brussels` reads better as `Europe / Brussels` in running text. */
+export function prettyZone(timeZone: string): string {
+  return timeZone.replace(/_/g, ' ');
+}
+
 /** The visitor's own IANA timezone, with a safe fallback. */
 export function browserTimeZone(): string {
   try {

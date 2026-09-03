@@ -3,6 +3,8 @@ import {
   buildEmbedHtml,
   buildTrackedLinks,
   downloadIcs,
+  formatWallTime,
+  prettyZone,
   supportedTimeZones,
   type CalendarEvent,
 } from '../lib';
@@ -36,15 +38,84 @@ function init(root: HTMLElement, form: HTMLFormElement) {
 
   let current: { event: CalendarEvent; track: boolean } | null = null;
   let tab: Tab = 'html';
+  /** Previous start instant, so an edit can shift the end by the same amount. */
+  let lastStartMs: number | null = null;
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    // A queued live re-render would run clearErrors() straight after this and
+    // wipe the validation state the submit is about to set.
+    clearTimeout(pending);
+    clearErrors();
     const parsed = readForm();
     if (!parsed) return;
     current = parsed;
     render();
     el('atc-output').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   });
+
+  // Once links exist, keep them in step with the form. Without this, editing a
+  // field leaves correct-looking links on screen that describe the old event,
+  // which is worse than showing nothing.
+  let pending = 0;
+  form.addEventListener('input', onEdit);
+  form.addEventListener('change', onEdit);
+
+  function onEdit(event: Event) {
+    syncEndToStart(event);
+    if (!current) return;
+    clearTimeout(pending);
+    pending = window.setTimeout(() => {
+      const parsed = readForm({ quiet: true });
+      if (!parsed) {
+        // Still invalid mid-edit. Hide the stale links rather than lie, but
+        // leave any message from an explicit submit standing.
+        el('atc-result').hidden = true;
+        el('atc-empty').hidden = false;
+        return;
+      }
+      clearErrors();
+      current = parsed;
+      render();
+    }, 250);
+  }
+
+  /**
+   * Moving the start moves the end by the same amount, so the duration the
+   * user set is preserved. Every calendar app behaves this way and people
+   * expect it; without it, pushing a 14:00 event to 16:00 silently produces
+   * an end before the start.
+   */
+  function syncEndToStart(event: Event) {
+    const target = event.target as HTMLElement | null;
+    if (!target || (target.id !== 'f-start-date' && target.id !== 'f-start-time')) return;
+
+    const startMs = parseLocal(value('f-start-date'), value('f-start-time'));
+    const endMs = parseLocal(value('f-end-date'), value('f-end-time'));
+    if (startMs === null || endMs === null) return;
+
+    const previous = lastStartMs;
+    lastStartMs = startMs;
+    if (previous === null) return;
+
+    const duration = endMs - previous;
+    if (duration < 0) return;
+
+    const shifted = new Date(startMs + duration);
+    setValue('f-end-date', isoDate(shifted));
+    if (!el<HTMLInputElement>('f-allday').checked) setValue('f-end-time', isoTime(shifted));
+  }
+
+  function parseLocal(date: string, time: string): number | null {
+    if (!date) return null;
+    const [y, m, d] = date.split('-').map(Number);
+    const [h, min] = (time || '00:00').split(':').map(Number);
+    if (!y || !m || !d) return null;
+    return Date.UTC(y, m - 1, d, h || 0, min || 0);
+  }
+
+  const isoDate = (d: Date) => d.toISOString().slice(0, 10);
+  const isoTime = (d: Date) => d.toISOString().slice(11, 16);
 
   form.addEventListener('reset', () => {
     current = null;
@@ -95,8 +166,18 @@ function init(root: HTMLElement, form: HTMLFormElement) {
 
   // ---------------- form reading ----------------
 
-  function readForm(): { event: CalendarEvent; track: boolean } | null {
-    clearErrors();
+  /**
+   * `quiet` is for the live re-render: mid-edit a field is briefly invalid and
+   * flashing red at someone who is still typing is worse than doing nothing.
+   */
+  function readForm(opts: { quiet?: boolean } = {}): { event: CalendarEvent; track: boolean } | null {
+    const fail = (field: string, message?: string) => {
+      if (!opts.quiet) showError(field, message);
+      return null;
+    };
+
+    // Callers clear errors themselves: the submit handler before validating,
+    // the live re-render only once the form parses cleanly.
     const allDay = el<HTMLInputElement>('f-allday').checked;
     const title = value('f-title').trim();
     const startDate = value('f-start-date');
@@ -104,16 +185,8 @@ function init(root: HTMLElement, form: HTMLFormElement) {
     const endDate = value('f-end-date') || startDate;
     const endTime = value('f-end-time') || startTime;
 
-    let ok = true;
-    if (!title) {
-      showError('title');
-      ok = false;
-    }
-    if (!startDate) {
-      showError('start');
-      ok = false;
-    }
-    if (!ok) return null;
+    if (!title) return fail('title');
+    if (!startDate) return fail('start');
 
     const start = allDay ? startDate : `${startDate}T${startTime}`;
     let end = allDay ? endDate : `${endDate}T${endTime}`;
@@ -127,10 +200,7 @@ function init(root: HTMLElement, form: HTMLFormElement) {
       ).padStart(2, '0')}`;
     }
 
-    if (end < start) {
-      showError('end');
-      return null;
-    }
+    if (end < start) return fail('end');
 
     const repeat = value('f-repeat');
     const count = value('f-count');
@@ -234,18 +304,12 @@ function init(root: HTMLElement, form: HTMLFormElement) {
   }
 
   function summarize(event: CalendarEvent): string {
-    try {
-      const opts: Intl.DateTimeFormatOptions = event.allDay
-        ? { dateStyle: 'full', timeZone: event.timeZone }
-        : { dateStyle: 'full', timeStyle: 'short', timeZone: event.timeZone };
-      const startUtc = new Date(`${event.start}${event.allDay ? 'T00:00' : ''}:00Z`);
-      const label = new Intl.DateTimeFormat(navigator.language, opts).format(startUtc);
-      return `${label} — ${event.timeZone.replace('_', ' ')}${
-        event.allDay ? ' (all day)' : ''
-      }`;
-    } catch {
-      return `${event.start} — ${event.timeZone}`;
-    }
+    const label = formatWallTime(event.start, {
+      locale: navigator.language,
+      allDay: event.allDay,
+    });
+    const zone = event.allDay ? '' : `, ${prettyZone(event.timeZone)}`;
+    return `${label}${zone}${event.allDay ? ' (all day)' : ''}`;
   }
 
   // ---------------- helpers ----------------
@@ -288,16 +352,42 @@ function init(root: HTMLElement, form: HTMLFormElement) {
   function setValue(id: string, v: string) {
     el<HTMLInputElement>(id).value = v;
   }
+  /** Which input a given error message should send the user to. */
+  const ERROR_FIELDS: Record<string, string> = {
+    title: 'f-title',
+    start: 'f-start-date',
+    end: 'f-end-time',
+  };
+
   function showError(field: string, message?: string) {
     const node = document.querySelector<HTMLElement>(`[data-error-for="${field}"]`);
     if (!node) return;
     if (message) node.textContent = message;
     node.hidden = false;
     node.classList.remove('hidden');
+
+    // Links already on screen describe an event the form no longer holds.
+    el('atc-result').hidden = true;
+    el('atc-empty').hidden = false;
+
+    // Move the caret to the field at fault, so keyboard and screen reader
+    // users find out what went wrong without hunting for red text.
+    const input = document.getElementById(ERROR_FIELDS[field] ?? '');
+    if (input) {
+      input.setAttribute('aria-invalid', 'true');
+      input.setAttribute('aria-describedby', node.id || `err-${field}`);
+      if (!node.id) node.id = `err-${field}`;
+      (input as HTMLInputElement).focus();
+      input.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
   }
   function clearErrors() {
     for (const node of document.querySelectorAll<HTMLElement>('[data-error-for]')) {
       node.classList.add('hidden');
+    }
+    for (const input of document.querySelectorAll('#atc-form [aria-invalid]')) {
+      input.removeAttribute('aria-invalid');
+      input.removeAttribute('aria-describedby');
     }
   }
 }

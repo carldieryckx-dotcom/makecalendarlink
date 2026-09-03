@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { decodeEvent } from '../../lib/encode';
+import { formatWallTime, prettyZone } from '../../lib/time';
 import { buildTrackedLinks } from '../../lib/output';
 import { SITE } from '../../config';
 import type { CalendarEvent } from '../../lib/event';
@@ -28,18 +29,11 @@ if (!event) {
   Astro.response.status = 404;
 }
 
-const when = (() => {
-  if (!event) return '';
-  try {
-    const opts: Intl.DateTimeFormatOptions = event.allDay
-      ? { dateStyle: 'full', timeZone: event.timeZone }
-      : { dateStyle: 'full', timeStyle: 'short', timeZone: event.timeZone };
-    const instant = new Date(`${event.start}${event.allDay ? 'T00:00' : ''}:00Z`);
-    return new Intl.DateTimeFormat('en-GB', opts).format(instant);
-  } catch {
-    return event.start;
-  }
-})();
+// formatWallTime prints the hour the organiser typed. Converting the wall time
+// through UTC into the event zone would shift it by the offset instead.
+const when = event
+  ? formatWallTime(event.start, { locale: 'en-GB', allDay: event.allDay })
+  : '';
 
 const schema = event
   ? [
@@ -103,8 +97,7 @@ const schema = event
                 <dd class="text-ink-800">
                   {when}
                   <span class="block text-ink-400">
-                    {event.timeZone.replace(/_/g, ' ')}
-                    {event.allDay ? ' · all day' : ''}
+                    {event.allDay ? 'All day' : prettyZone(event.timeZone)}
                   </span>
                 </dd>
               </div>

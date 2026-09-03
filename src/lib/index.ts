@@ -16,5 +16,11 @@ export {
 } from './links';
 export { buildIcs, icsFilename, downloadIcs } from './ics';
 export { encodeEvent, decodeEvent, eventKey } from './encode';
-export { browserTimeZone, supportedTimeZones, wallToUtc } from './time';
+export {
+  browserTimeZone,
+  supportedTimeZones,
+  wallToUtc,
+  formatWallTime,
+  prettyZone,
+} from './time';
 export { buildTrackedLinks, buildEmbedHtml } from './output';

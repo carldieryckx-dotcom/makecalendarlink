@@ -3,7 +3,14 @@ import { buildLinks, googleUrl } from './links';
 import { buildIcs, icsFilename } from './ics';
 import { normalizeEvent, type CalendarEvent } from './event';
 import { decodeEvent, encodeEvent, eventKey } from './encode';
-import { isoOffset, parseNaive, toUtcCompact, wallToUtc } from './time';
+import {
+  formatWallTime,
+  isoOffset,
+  parseNaive,
+  prettyZone,
+  toUtcCompact,
+  wallToUtc,
+} from './time';
 import { buildEmbedHtml, buildTrackedLinks } from './output';
 
 const summer: CalendarEvent = {
@@ -43,6 +50,37 @@ describe('time', () => {
       '20260715T043000Z',
     );
     expect(toUtcCompact(wallToUtc('2026-07-15T14:00', 'UTC'))).toBe('20260715T140000Z');
+  });
+
+  it('formats a wall time as the numbers the user typed', () => {
+    // Regression: building `new Date(start + 'Z')` and formatting it in the
+    // event zone shifted the label by the offset, so 14:00 Brussels read as
+    // 16:00 and an all-day event in a negative-offset zone read a day early.
+    expect(formatWallTime('2026-10-15T14:00', { locale: 'en-GB' })).toContain('14:00');
+    expect(formatWallTime('2026-10-15T14:00', { locale: 'en-GB' })).toContain('15 October 2026');
+    expect(formatWallTime('2026-01-15T09:05', { locale: 'en-GB' })).toContain('09:05');
+    expect(formatWallTime('2026-10-15T23:30', { locale: 'en-GB' })).toContain('23:30');
+  });
+
+  it('formats an all-day wall time on the right calendar day', () => {
+    const label = formatWallTime('2026-10-15', { locale: 'en-GB', allDay: true });
+    expect(label).toContain('15 October 2026');
+    expect(label).not.toContain('14 October');
+    expect(label).not.toMatch(/\d{2}:\d{2}/);
+  });
+
+  it('never shifts a label by the zone offset', () => {
+    // The label must not depend on the timezone at all: it is the typed time.
+    for (const zone of ['UTC', 'Europe/Brussels', 'America/New_York', 'Pacific/Auckland']) {
+      const links = buildLinks({ ...summer, timeZone: zone });
+      expect(links.google).toContain('20260715T140000');
+      expect(formatWallTime('2026-07-15T14:00', { locale: 'en-GB' })).toContain('14:00');
+    }
+  });
+
+  it('prettifies zone names', () => {
+    expect(prettyZone('America/New_York')).toBe('America/New York');
+    expect(prettyZone('UTC')).toBe('UTC');
   });
 
   it('formats ISO offsets', () => {
