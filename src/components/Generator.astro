@@ -158,20 +158,21 @@ const hintClass = 'mt-1 text-xs text-ink-400';
     </div>
 
     <div class="mt-6 flex flex-wrap items-center gap-3 border-t border-ink-100 pt-5">
+      <!-- min-h-11 keeps tap targets at 44px, which is what mobile audits want. -->
       <button
         type="submit"
-        class="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+        class="min-h-11 rounded-lg bg-brand-600 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-700"
         >Generate links</button
       >
       <button
         type="button"
         id="atc-example"
-        class="rounded-lg border border-ink-200 px-4 py-2.5 text-sm font-medium text-ink-800 hover:bg-ink-50"
+        class="min-h-11 rounded-lg border border-ink-200 px-5 py-3 text-sm font-medium text-ink-800 hover:bg-ink-50"
         >Fill in an example</button
       >
       <button
         type="reset"
-        class="ml-auto text-sm text-ink-400 underline-offset-2 hover:text-ink-800 hover:underline"
+        class="ml-auto inline-flex min-h-11 items-center px-2 text-sm text-ink-400 underline-offset-2 hover:text-ink-800 hover:underline"
         >Reset</button
       >
     </div>
