@@ -13,7 +13,10 @@ const hintClass = 'mt-1 text-xs text-ink-400';
   class="mx-auto grid max-w-6xl gap-8 px-5 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]"
 >
   <!-- ---------- form ---------- -->
-  <form id="atc-form" novalidate class="rounded-2xl border border-ink-200 bg-white p-5 sm:p-6">
+  <!-- min-w-0 on both columns: grid items default to min-width:auto, which lets
+       the generated snippet push the whole document wider than the viewport
+       instead of scrolling inside its own box. -->
+  <form id="atc-form" novalidate class="min-w-0 rounded-2xl border border-ink-200 bg-white p-5 sm:p-6">
     <h2 class="text-lg font-semibold tracking-tight">Event details</h2>
     <p class="mt-1 text-sm text-ink-600">
       Nothing is stored. Everything below is turned into links in your browser.
@@ -179,7 +182,7 @@ const hintClass = 'mt-1 text-xs text-ink-400';
   </form>
 
   <!-- ---------- output ---------- -->
-  <div id="atc-output" class="lg:sticky lg:top-6 lg:self-start">
+  <div id="atc-output" class="min-w-0 lg:sticky lg:top-6 lg:self-start">
     <div
       id="atc-empty"
       class="rounded-2xl border border-dashed border-ink-200 bg-ink-50/50 p-10 text-center"
@@ -209,8 +212,12 @@ const hintClass = 'mt-1 text-xs text-ink-400';
         <p id="atc-tab-hint" class="mt-4 text-sm text-ink-600"></p>
 
         <div class="relative mt-3">
+          <!-- Wrap rather than scroll sideways: calendar URLs are long and
+               unbreakable, and a horizontal scrollbar inside a page is
+               miserable on a phone. Copying uses the button, so wrapping
+               costs nothing. -->
           <pre
-            class="max-h-80 overflow-auto rounded-xl bg-ink-900 p-4 pr-24 text-xs leading-relaxed text-ink-100"><code id="atc-code"></code></pre>
+            class="max-h-80 min-w-0 overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-all rounded-xl bg-ink-900 p-4 pr-24 text-xs leading-relaxed text-ink-100"><code id="atc-code" class="break-all"></code></pre>
           <button
             id="atc-copy"
             type="button"

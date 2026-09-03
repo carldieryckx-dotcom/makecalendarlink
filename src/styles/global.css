@@ -63,11 +63,19 @@ body {
 .prose-page code {
   @apply rounded bg-ink-100 px-1.5 py-0.5 font-mono text-[0.85em];
 }
+/* Long unbreakable URLs in code samples must not widen the document. min-w-0
+   plus wrapping is what keeps the page from blowing past the viewport. */
 .prose-page pre {
-  @apply my-5 overflow-x-auto rounded-xl bg-ink-900 p-4 text-sm text-ink-100;
+  @apply my-5 min-w-0 whitespace-pre-wrap break-all rounded-xl bg-ink-900 p-4 text-sm text-ink-100;
 }
 .prose-page pre code {
   @apply bg-transparent p-0 text-inherit;
+}
+.prose-page code {
+  @apply break-words;
+}
+.prose-page table {
+  @apply block overflow-x-auto;
 }
 .prose-page table {
   @apply my-6 w-full border-collapse text-sm;

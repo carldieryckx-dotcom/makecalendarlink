@@ -86,6 +86,28 @@ describe('generator markup contract', () => {
     expect(script).toContain('root.dataset.origin');
   });
 
+  it('constrains the output column so long snippets cannot widen the page', () => {
+    // Regression: grid items default to min-width:auto, so the generated
+    // snippet grew the <pre> to its full content width and pushed the document
+    // to ~3800px on a 375px screen. Everything below then rendered in a sliver.
+    expect(component).toMatch(/id="atc-form"[^>]*class="[^"]*\bmin-w-0\b/);
+    expect(component).toMatch(/id="atc-output"[^>]*class="[^"]*\bmin-w-0\b/);
+  });
+
+  it('wraps the snippet instead of scrolling it sideways', () => {
+    const pre = /<pre\b[\s\S]*?<code id="atc-code"/.exec(component)?.[0] ?? '';
+    expect(pre).toContain('whitespace-pre-wrap');
+    expect(pre).toContain('break-all');
+    expect(pre).not.toContain('overflow-auto');
+  });
+
+  it('keeps guide-page code blocks from widening the page too', () => {
+    const css = read('../styles/global.css');
+    const block = /\.prose-page pre \{[\s\S]*?\}/.exec(css)?.[0] ?? '';
+    expect(block).toContain('whitespace-pre-wrap');
+    expect(block).toContain('break-all');
+  });
+
   it('keeps the tab styles in global css, not a scoped @apply block', () => {
     // Tailwind 4 scoped styles need an @reference directive; keeping these
     // classes global avoids a build failure that is easy to reintroduce.
